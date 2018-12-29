@@ -1,0 +1,6 @@
+Flask==1.0.2
+flask-sqlalchemy==2.3.2
+flask-migrate==2.3.1
+python-dotenv==0.10.1
+marshmallow==2.16.3
+dropbox==9.3.0
