@@ -1,19 +1,34 @@
 from flask import Blueprint
 from flask import jsonify
-from flask import render_template
 from flask import request
+
+from app.responses import FileResponse
 from app.schemas import SearchQuerySchema
 from app.services import DBoxApiService
-from app.responses import FileResponse
+from config import Config
 
 bp = Blueprint('d-box', __name__, url_prefix='/api')
 
-access_token = ''
 
-
-@bp.route('/dbx-items', methods=['GET'])
+@bp.route('/%s-items' % bp.name, methods=['GET'])
 def dbx_items_api_view():
-    dbx = DBoxApiService(access_token=access_token)
+    """
+    Get Dropbox item list, include folders and files.
+    Query params: [path,]
+    Api call example: domain/api/d-box-items?path=/bookmarks
+    :return: {
+    "dbx_items": [
+        {
+          "id": "id:zqmqAdvBreAAAAAAAAAAQw",
+          "name": "bookmarks",
+          "path_lower": "/bookmarks",
+          "type": "folder"
+        },
+        ...
+      ],
+    }
+    """
+    dbx = DBoxApiService(access_token=Config.DROPBOX_ACCESS_TOKEN)
     parse_query_errors = SearchQuerySchema().validate(data=request.args)
     if parse_query_errors:
         return jsonify({
@@ -24,13 +39,26 @@ def dbx_items_api_view():
         'path': request.args.get('path', ''),
         'ordering': request.args.get('ordering', '')
     })
-    print(request.args.get('path', ''))
     return jsonify({'dbx_items': object_list})
 
 
 @bp.route('/%s-search' % bp.name)
 def d_box_search_api_view():
-    dbx = DBoxApiService(access_token=access_token)
+    """
+    Make recursive search through dropbox items.
+    Query params: [path, token].
+    Api call example: domain/api/d-box-search?token=bookmarks
+    :return: [
+      {
+        "id": "id:zqmqAdvBreAAAAAAAAAAQw",
+        "name": "bookmarks",
+        "path_lower": "/bookmarks",
+        "type": "folder"
+       },
+       ...
+     ]
+    """
+    dbx = DBoxApiService(access_token=Config.DROPBOX_ACCESS_TOKEN)
     parse_query_errors = SearchQuerySchema().validate(data=request.args)
     if parse_query_errors:
         return jsonify(parse_query_errors)
@@ -45,7 +73,16 @@ def d_box_search_api_view():
 
 @bp.route('/%s-item-download' % bp.name)
 def d_box_item_download_api_view():
-    dbx = DBoxApiService(access_token=access_token)
+    """
+    Download Dropbox items, folders or files.
+    Folder can be loaded like zip.
+    Api call examples: [
+        domain/api/d-box-item-download?content_type=zip&path=/bookmarks,
+        domain/api/d-box-item-download?content_type=file&path=/bookmark_1.1.html,
+    ]
+    :return: Attached file or binary, will be recognized by browser.
+    """
+    dbx = DBoxApiService(access_token=Config.DROPBOX_ACCESS_TOKEN)
     parse_query_errors = SearchQuerySchema().validate(data=request.args)
     if parse_query_errors:
         return jsonify(parse_query_errors)
@@ -61,6 +98,3 @@ def d_box_item_download_api_view():
         return response
     elif file_data.get('errors'):
         return jsonify(file_data.get('errors'))
-
-
-
