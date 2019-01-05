@@ -2,7 +2,6 @@ from dropbox.exceptions import (
     ApiError, BadInputError, AuthError, InternalServerError,
     RateLimitError,
 )
-from flask import jsonify
 
 
 def get_d_box_exception_tuple():

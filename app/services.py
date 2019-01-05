@@ -7,6 +7,7 @@ from dropbox.files import FolderMetadata
 from app.decorators import d_box_catch_exceptions
 from app.schemas import DBoxItemSchema
 from app.utils import sort_items_by_name
+from config import Config
 
 
 class DBoxApiService(object):
@@ -47,11 +48,10 @@ class DBoxApiService(object):
         metadata, file = call_backs['content_type_{}'.format(content_type)](
             path=path
         )
-        name = metadata.metadata.name + '.zip' if 'zip' in content_type else ''
+        name = metadata.metadata.name + '.zip' if 'zip' in content_type else metadata.name
         return {'file': file.content, 'filename': name}
 
-    @staticmethod
-    def set_dbx_items_type(raw_dbx_items, **query_params):
+    def set_dbx_items_type(self, raw_dbx_items, **query_params):
         schema = DBoxItemSchema()
         folders = []
         files = []
@@ -59,9 +59,17 @@ class DBoxApiService(object):
             d_box_item_to_dict = schema.dump(d_box_item).data
             if isinstance(d_box_item, FolderMetadata):
                 d_box_item_to_dict['type'] = 'folder'
+                d_box_item_to_dict = self.build_download_item_link(
+                    d_box_item_to_dict,
+                    'zip'
+                )
                 folders.append(d_box_item_to_dict)
             elif isinstance(d_box_item, FileMetadata):
                 d_box_item_to_dict['type'] = 'file'
+                d_box_item_to_dict = self.build_download_item_link(
+                    d_box_item_to_dict,
+                    'file'
+                )
                 files.append(d_box_item_to_dict)
         sorted_data = list(
             chain(
@@ -70,3 +78,14 @@ class DBoxApiService(object):
             )
         )
         return sorted_data
+
+    @classmethod
+    def build_download_item_link(cls, dbx_item, content_type):
+        dbx_item['download_link'] = '{}://{}/api/d-box-item-download?content_type={}&path={}'.format(
+            Config.PROTOCOL,
+            Config.DOMAIN,
+            content_type,
+            dbx_item.get('path_lower')
+        )
+        return dbx_item
+

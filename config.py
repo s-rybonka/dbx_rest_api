@@ -10,3 +10,5 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = os.environ.get('SQLALCHEMY_TRACK_MODIFICATIONS')
     DROPBOX_ACCESS_TOKEN = os.environ.get('DROPBOX_ACCESS_TOKEN')
+    DOMAIN = os.environ.get('DOMAIN', '127.0.0.1:5000')
+    PROTOCOL = os.environ.get('PROTOCOL', 'http')

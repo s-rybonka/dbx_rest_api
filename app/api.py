@@ -39,7 +39,7 @@ def dbx_items_api_view():
         'path': request.args.get('path', ''),
         'ordering': request.args.get('ordering', '')
     })
-    return jsonify({'dbx_items': object_list})
+    return jsonify({'results': object_list})
 
 
 @bp.route('/%s-search' % bp.name)
@@ -68,7 +68,7 @@ def d_box_search_api_view():
             'token': request.args.get('token', '')
         }
     )
-    return jsonify(data_to_response)
+    return jsonify({'results': data_to_response})
 
 
 @bp.route('/%s-item-download' % bp.name)
