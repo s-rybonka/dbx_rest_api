@@ -12,3 +12,4 @@
 6. Fill in .env, all keys are required.
 7. Turn on debug mode, type in your terminal: export FLASK_DEBUG=True
 8. Run application: flask run.
+9. API docs available at - [http://127.0.0.1:5000/apidocs/]

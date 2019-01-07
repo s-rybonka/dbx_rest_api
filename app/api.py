@@ -1,7 +1,9 @@
+from flasgger import swag_from
 from flask import Blueprint
 from flask import jsonify
 from flask import request
 
+from app import api_spec_schemas as doc_schemas
 from app.responses import FileResponse
 from app.schemas import SearchQuerySchema
 from app.services import DBoxApiService
@@ -11,22 +13,10 @@ bp = Blueprint('d-box', __name__, url_prefix='/api')
 
 
 @bp.route('/%s-items' % bp.name, methods=['GET'])
+@swag_from(doc_schemas.d_box_items_api_spec)
 def dbx_items_api_view():
     """
     Get Dropbox item list, include folders and files.
-    Query params: [path,]
-    Api call example: domain/api/d-box-items?path=/bookmarks
-    :return: {
-    "dbx_items": [
-        {
-          "id": "id:zqmqAdvBreAAAAAAAAAAQw",
-          "name": "bookmarks",
-          "path_lower": "/bookmarks",
-          "type": "folder"
-        },
-        ...
-      ],
-    }
     """
     dbx = DBoxApiService(access_token=Config.DROPBOX_ACCESS_TOKEN)
     parse_query_errors = SearchQuerySchema().validate(data=request.args)
@@ -43,20 +33,10 @@ def dbx_items_api_view():
 
 
 @bp.route('/%s-search' % bp.name)
+@swag_from(doc_schemas.d_box_search_api_spec)
 def d_box_search_api_view():
     """
-    Make recursive search through dropbox items.
-    Query params: [path, token].
-    Api call example: domain/api/d-box-search?token=bookmarks
-    :return: [
-      {
-        "id": "id:zqmqAdvBreAAAAAAAAAAQw",
-        "name": "bookmarks",
-        "path_lower": "/bookmarks",
-        "type": "folder"
-       },
-       ...
-     ]
+    Make recursive search through Dropbox items.
     """
     dbx = DBoxApiService(access_token=Config.DROPBOX_ACCESS_TOKEN)
     parse_query_errors = SearchQuerySchema().validate(data=request.args)
@@ -72,10 +52,12 @@ def d_box_search_api_view():
 
 
 @bp.route('/%s-item-download' % bp.name)
+@swag_from(doc_schemas.d_box_item_download_api_spec)
 def d_box_item_download_api_view():
     """
     Download Dropbox items, folders or files.
     Folder can be loaded like zip.
+    File like attached object.
     Api call examples: [
         domain/api/d-box-item-download?content_type=zip&path=/bookmarks,
         domain/api/d-box-item-download?content_type=file&path=/bookmark_1.1.html,

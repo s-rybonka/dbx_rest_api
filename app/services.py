@@ -23,7 +23,7 @@ class DBoxApiService(object):
         dbx = self.activate_d_box_interface()
         d_box_entries = dbx.files_list_folder(
             query_params.get('path')).entries
-        return self.set_dbx_items_type(d_box_entries, **query_params)
+        return self.set_dbx_items_type(d_box_entries, query_params)
 
     @d_box_catch_exceptions
     def d_box_files_search(self, **query_params):
@@ -34,7 +34,7 @@ class DBoxApiService(object):
         ).matches
         return self.set_dbx_items_type([
             s_item.metadata for s_item in searched_items
-        ], **query_params)
+        ], query_params)
 
     @d_box_catch_exceptions
     def download_d_box_item(self, **query_params):
@@ -51,7 +51,7 @@ class DBoxApiService(object):
         name = metadata.metadata.name + '.zip' if 'zip' in content_type else metadata.name
         return {'file': file.content, 'filename': name}
 
-    def set_dbx_items_type(self, raw_dbx_items, **query_params):
+    def set_dbx_items_type(self, raw_dbx_items, query_params):
         schema = DBoxItemSchema()
         folders = []
         files = []
