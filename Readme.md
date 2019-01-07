@@ -3,7 +3,7 @@
 2. Flask 1.0.2
 
 ##### Quick Start: #####
-1. Git clone : [git@github.com:Stanislav-Rybonka/dbx_rest_api.git]
+1. Git clone : [https://github.com/Stanislav-Rybonka/dbx_rest_api.git]
 2. cd into project root folder for e.q. cd /dbx_rest_api
 3. Create virtualenv: python3 -m venv .venv
 4. Install requirements: pip install -r requirements.txt
